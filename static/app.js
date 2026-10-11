@@ -93,15 +93,16 @@ function renderDevice(d) {
   if (d.type === 'cctv') graphic = `<g transform="rotate(${rot} ${x} ${y})"><path d="M${x - 2} ${y - 2}l13 -7v14l-13 -7z" fill="${m.color}"/><path d="M${x + 9} ${y - 6}l7 -3v18l-7 -3" fill="${m.color}" opacity=".72"/></g>`;
   else if (d.type === 'ap') graphic = `<circle cx="${x}" cy="${y}" r="4" fill="white"/><path d="M${x - 7} ${y - 2}a9 9 0 0 1 14 0M${x - 11} ${y - 5}a15 15 0 0 1 22 0" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round"/>`;
   else graphic = `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="white">${m.glyph}</text>`;
-  const r = d.type === 'cctv' || d.type === 'ap' ? 15 : 15;
+  const symbolScale = Math.max(1, h() / 700);
+  const r = 18;
   const selected = state.selectedDeviceId === d.id;
   const angle = rot * Math.PI / 180;
-  const handleX = Math.max(12, Math.min(988, x + Math.cos(angle) * 36));
-  const handleY = Math.max(12, Math.min(h() - 12, y + Math.sin(angle) * 36));
-  const rotateHandle = d.type === 'cctv' && selected ? `<g class="rotation-control"><line class="rotation-link" x1="${x}" y1="${y}" x2="${handleX}" y2="${handleY}"/><circle class="rotation-grab" data-rotate-id="${esc(d.id)}" cx="${handleX}" cy="${handleY}" r="9" tabindex="0" role="slider" aria-label="Drag to rotate ${esc(d.id)}" aria-valuenow="${Math.round(((rot % 360) + 360) % 360)}" aria-valuemin="0" aria-valuemax="359"/><path class="rotation-glyph" d="M${handleX - 3} ${handleY + 2}a4 4 0 1 1 5 -5m0 0v-3m0 3h-3"/></g>` : '';
+  const handleX = Math.max(12, Math.min(988, x + Math.cos(angle) * 40 * symbolScale));
+  const handleY = Math.max(12, Math.min(h() - 12, y + Math.sin(angle) * 40 * symbolScale));
+  const rotateHandle = d.type === 'cctv' && selected ? `<g class="rotation-control"><line class="rotation-link" x1="${x}" y1="${y}" x2="${handleX}" y2="${handleY}"/><circle class="rotation-grab" data-rotate-id="${esc(d.id)}" cx="${handleX}" cy="${handleY}" r="${9*symbolScale}" tabindex="0" role="slider" aria-label="Drag to rotate ${esc(d.id)}" aria-valuenow="${Math.round(((rot % 360) + 360) % 360)}" aria-valuemin="0" aria-valuemax="359"/><path class="rotation-glyph" d="M${handleX - 3} ${handleY + 2}a4 4 0 1 1 5 -5m0 0v-3m0 3h-3"/></g>` : '';
   return `<g class="device ${d.type}${selected ? ' selected' : ''}" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="${esc(d.id)} ${esc(m.label)}" transform="translate(0 0)">
-    <circle class="device-core" cx="${x}" cy="${y}" r="${r}" fill="${m.color}"/>
-    ${graphic}${rotateHandle}<text class="device-label" x="${x}" y="${y + 29}" text-anchor="middle">${esc(d.id)}</text>
+    <g transform="translate(${x} ${y}) scale(${symbolScale}) translate(${-x} ${-y})"><circle class="device-core" cx="${x}" cy="${y}" r="${r}" fill="${m.color}"/>
+    ${graphic}<text class="device-label" x="${x}" y="${y + 29}" text-anchor="middle">${esc(d.id)}</text></g>${rotateHandle}
   </g>`;
 }
 
@@ -312,7 +313,7 @@ function draw() {
   $('#fileBadge').textContent = state.kind === 'demo' ? 'DEMO' : state.kind.toUpperCase();
   $('#planNote').textContent = state.kind === 'demo' ? 'Example layout · Replace with a customer plan to begin' : `${state.kind.toUpperCase()} plan loaded · Current page held in browser memory`;
   $('#deviceCountFoot').textContent = `${state.devices.length} devices · ${state.devices.filter((d)=>d.type==='cctv').length} cameras · ${state.devices.filter((d)=>d.type==='ap').length} APs`;
-  $('#canvasStatus').textContent = state.analysis.mode === 'ai' ? 'AI suggestions ready · Review required' : 'Ready for design';
+  $('#canvasStatus').textContent = state.analysis.mode === 'ai' ? '' : 'Ready for design';
   renderDeviceList();
 }
 
@@ -441,7 +442,7 @@ async function analyze() {
     state.analysis = result; $('#aiSummary').textContent = result.summary || 'Layout suggestions are ready for review.'; $('#aiSummary').classList.remove('hidden');
     const assumptions = [...(result.assumptions || []), ...(result.questions || []).map((q)=>`Confirm: ${q}`)];
     $('#assumptionList').innerHTML = assumptions.map((a)=>`<li>${esc(a)}</li>`).join(''); $('#assumptionBox').classList.toggle('hidden', !assumptions.length);
-    $('#canvasStatus').textContent = 'AI suggestions ready · Review required';
+    $('#canvasStatus').textContent = '';
     $('#uploadHint').textContent = 'Layout generated · review the placements and design notes';
     draw(); toast('Plan analyzed. Review and adjust every suggestion.');
   } catch (e) { state.lastAnalysisError=e.message; $('#canvasStatus').textContent = 'Analysis could not complete'; toast(e.message); }

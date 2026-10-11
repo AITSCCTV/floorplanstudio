@@ -18,7 +18,7 @@
     'Use matching numbers for the same device in different photos. Unclear symbols will be listed for review.':'ใช้หมายเลขเดียวกันสำหรับอุปกรณ์เดียวกันในหลายภาพ ระบบจะแสดงสัญลักษณ์ที่ไม่ชัดเจนให้ตรวจสอบ',
     'Overall floor width (optional)':'ความกว้างชั้นทั้งหมด (ถ้าทราบ)','Overall floor depth (optional)':'ความลึกชั้นทั้งหมด (ถ้าทราบ)','Measurement unit':'หน่วยวัด',
     'Without measurements, dimensions and room connections are estimates. Review them before sharing the drawing.':'หากไม่มีระยะที่วัดจริง ขนาดและการเชื่อมต่อห้องเป็นการประมาณ กรุณาตรวจสอบก่อนส่งต่อแบบ',
-    'Create draft floorplan':'สร้างผังร่าง','Photo survey · rooms and recognised markings':'ผังจากภาพหน้างาน · ห้องและสัญลักษณ์ที่อ่านได้',
+    'Drafting…':'กำลังสร้างผังร่าง…','Create draft floorplan':'สร้างผังร่าง','Photo survey · rooms and recognised markings':'ผังจากภาพหน้างาน · ห้องและสัญลักษณ์ที่อ่านได้',
     'This is a schematic reconstruction. Review photo correspondence, dimensions and marked device placements.':'นี่คือผังแสดงพื้นที่โดยประมาณ โปรดตรวจสอบภาพอ้างอิง ขนาด และตำแหน่งอุปกรณ์ที่วาดไว้',
     'Edit reconstructed rooms and photo markings':'แก้ไขห้องและสัญลักษณ์จากภาพหน้างาน',
     'Photo inputs changed. Create a new draft before continuing.':'ข้อมูลภาพมีการเปลี่ยนแปลง โปรดสร้างแบบร่างใหม่ก่อนดำเนินการต่อ',
@@ -114,7 +114,7 @@
       return {filename:file.name.slice(0,180),label:file.name.replace(/\.[^.]+$/,'').slice(0,120),notes:'',imageDataUrl:canvas.toDataURL('image/jpeg',.86)};
     }finally{URL.revokeObjectURL(url);}
   }
-  function freeze(on){busy=on;panel.setAttribute('aria-busy',String(on));panel.querySelectorAll('input,textarea,select,button').forEach(n=>n.disabled=on);choose.querySelectorAll('button').forEach(n=>n.disabled=on);by('journeyNext').disabled=on;by('surveyBuild').disabled=on||!photos.length;}
+  function freeze(on){busy=on;panel.setAttribute('aria-busy',String(on));panel.querySelectorAll('input,textarea,select,button').forEach(n=>n.disabled=on);choose.querySelectorAll('button').forEach(n=>n.disabled=on);by('journeyNext').disabled=on;by('surveyBuild').disabled=on||!photos.length;by('surveyBuild').textContent=t(on?'Drafting…':'Create draft floorplan');by('surveyBuild').setAttribute('aria-busy',String(on));}
   by('surveyFiles').onchange=async event=>{
     const files=[...event.target.files];event.target.value='';if(!files.length)return;
     if(photos.length+files.length>12||files.reduce((n,f)=>n+f.size,0)>50*1024*1024){by('surveyStatus').textContent=t('Use up to 12 photos and 50 MB per selection.');return;}
@@ -128,8 +128,8 @@
     const all=[...state.analysis.assumptions,...state.analysis.questions.map(q=>t('Confirm: ')+q)];by('assumptionList').innerHTML=all.map(s=>`<li>${esc(s)}</li>`).join('');by('assumptionBox').classList.toggle('hidden',!all.length);
   }
   window.siteSurveyBackground=()=>{
-    const s=workflow.survey,depth=s?.floorHeightM||Number(by('floorWidth').value)*h()/1000;
-    return `<rect width="1000" height="${h()}" fill="#fff"/><g class="survey-geometry" data-user-content>${state.rooms.map(r=>`<rect x="${r.x}" y="${r.y*h()/1000}" width="${r.width}" height="${r.height*h()/1000}" fill="#f8fafc" stroke="#203b50" stroke-width="4"/><text x="${r.x+r.width/2}" y="${(r.y+r.height/2)*h()/1000}" text-anchor="middle" fill="#203b50" font-size="14">${esc(r.name)}</text><text x="${r.x+r.width/2}" y="${(r.y+r.height/2)*h()/1000+20}" text-anchor="middle" fill="#64788b" font-size="12">${numbers(r.width/1000*Number(by('floorWidth').value))} m × ${numbers(r.height/1000*depth)} m</text>`).join('')}</g><text x="20" y="${h()-12}" font-size="12" fill="#7a5c2f">${esc(t('PHOTO SURVEY · SCHEMATIC · VERIFY DIMENSIONS'))}</text>`;
+    const labelScale=Math.max(1,h()/700);const s=workflow.survey,depth=s?.floorHeightM||Number(by('floorWidth').value)*h()/1000;
+    return `<rect width="1000" height="${h()}" fill="#fff"/><g class="survey-geometry" data-user-content>${state.rooms.map(r=>`<rect x="${r.x}" y="${r.y*h()/1000}" width="${r.width}" height="${r.height*h()/1000}" fill="#f8fafc" stroke="#203b50" stroke-width="4"/><text x="${r.x+r.width/2}" y="${(r.y+r.height/2)*h()/1000}" text-anchor="middle" fill="#203b50" font-size="${26*labelScale}" font-weight="600">${esc(r.name)}</text><text x="${r.x+r.width/2}" y="${(r.y+r.height/2)*h()/1000+32*labelScale}" text-anchor="middle" fill="#64788b" font-size="${20*labelScale}">${numbers(r.width/1000*Number(by('floorWidth').value))} m × ${numbers(r.height/1000*depth)} m</text>`).join('')}</g><text x="20" y="${h()-18*labelScale}" font-size="${16*labelScale}" fill="#7a5c2f">${esc(t('PHOTO SURVEY · SCHEMATIC · VERIFY DIMENSIONS'))}</text>`;
   };
   by('surveyBuild').onclick=async()=>{
     if(busy||!photos.length)return;

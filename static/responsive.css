@@ -11,3 +11,32 @@
 
 @media(max-width:650px){.sidebar{align-items:stretch}.sidebar .side-link,.sidebar .side-link.active{height:100%;flex-direction:column;justify-content:center;gap:4px;min-height:72px}.sidebar .brand{align-items:center}.sidebar .side-link .side-icon{font-size:18px}}
 @media(max-width:400px){.breadcrumb{display:none}}
+
+/* Readable preview controls and an unmistakable drafting state. */
+.journey .canvas-head{height:auto;min-height:84px;padding:16px 20px;gap:16px;flex-wrap:wrap}
+.journey .canvas-title b{font-size:18px;line-height:1.5}
+.journey .canvas-title small{font-size:14px;line-height:1.5;color:#61758a}
+.journey .canvas-file-icon{width:44px;height:44px;font-size:22px;flex-shrink:0}
+.journey .canvas-actions .icon-btn{width:48px;min-width:48px;height:48px;min-height:48px;font-size:24px}
+.journey .canvas-actions .icon-btn svg{width:24px;height:24px}
+.journey .canvas-actions .zoom-label{width:58px;height:48px;font-size:16px}
+.journey .view-tabs{height:auto;min-height:72px;padding:12px 16px;gap:10px;flex-wrap:wrap}
+.journey .view-tabs .view-tab{min-height:48px;height:auto;font-size:16px;padding:12px 16px;gap:9px}
+.journey .tab-icon{font-size:20px}
+.journey .canvas-foot{height:auto;min-height:48px;font-size:14px;padding:12px 16px;gap:12px;flex-wrap:wrap}
+.canvas-foot>span:first-child:has(#canvasStatus:empty){display:none}
+.device-label{font-size:18px}
+#surveyBuild{min-height:52px;font-size:17px;padding:14px 22px}
+#surveyBuild:disabled,#surveyBuild:disabled:hover{background:#d4d9e0;color:#5b6573;border:1px solid #c1c8d1;box-shadow:none;cursor:not-allowed;opacity:1}
+#surveyBuild[aria-busy="true"]{cursor:wait}
+@media(max-width:650px){
+.journey .canvas-head{padding:12px;gap:10px}
+.journey .canvas-title b{font-size:16px;overflow-wrap:anywhere}
+.journey .canvas-title small{font-size:13px}
+.journey .canvas-actions .icon-btn{width:44px;min-width:44px;height:44px;min-height:44px}
+.journey .canvas-actions .zoom-label{height:44px;font-size:15px}
+.journey .view-tabs{padding:10px;gap:8px}
+.journey .view-tabs .view-tab{font-size:14px;min-height:48px;padding:10px 8px}
+.journey .canvas-foot{font-size:13px}
+#surveyBuild{width:100%}
+}
