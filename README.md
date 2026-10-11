@@ -1,0 +1,53 @@
+# AITS Floorplan Studio
+
+Local-first internal web app for preparing a reviewed first-pass CCTV and Wi-Fi layout from a PDF, DXF, PNG or JPEG floor plan.
+
+**Local pilot, 11 October 2026.** The owner approved the proposed answers in the 92-question requirements document and the OpenAI plan-data flow, and selected a local pilot. The app runs on localhost. Review names and stages are local project records, not authenticated team approvals. Approved product models, logos and drawing templates were not provided; add these through the project workspace.
+
+## Start on Windows
+
+1. Open PowerShell in this folder.
+2. Run `.\start.ps1`.
+3. The first run creates a private Python environment, installs the app requirements, and opens the browser.
+4. AI is disabled by default. Only after AITS explicitly approves the plan-data flow, edit `.env`, set `OPENAI_API_KEY`, set `AITS_AI_PLAN_DATA_APPROVED=true`, and restart. Never put a key into browser code, screenshots, workflow exports, or Git.
+
+The server binds only to `127.0.0.1`; it is meant for this computer and is not configured for network or public access.
+
+## Local pilot features
+
+- PDF pages (up to 20), common DXF geometry, and PNG/JPEG plans; maximum upload 50 MB.
+- OpenAI placement suggestions with exact requested CCTV, AP, router, switch and NVR quantities, including zero quantities. AI explains assumptions and open questions.
+- Camera aim, horizontal FOV, calibrated range, mounting height, 2/4 Gang, product selection and preservation during regeneration.
+- Editable/importable product catalog. Unknown specifications stay blank; imported approval flags reflect the user's declaration.
+- Two-point scale calibration or confirmed plan width, stored floors, prohibited zones and straight cable connections with 10% slack.
+- BOM CSV, manual unit prices, labor and tax inputs, quote CSV, port/PoE warnings and recording payload storage estimate.
+- Local project JSON save/restore, undo/redo, named review stages, comments and revision history. Edits reset review state to Draft.
+- Company logo upload, A3/A4 drawing pack through browser print/PDF, branded SVG and the Kai/OpenAI credit.
+- Default plan, approximate Wi-Fi, camera-view and illustrative isometric 3D views.
+
+Use **Save project** to preserve work as a downloaded JSON file. The app has no automatic backup or shared storage. Store a floor before changing plan pages if you want to preserve that floor's drawing. Project files include the embedded plan and logo, catalog, comments and workflow data.
+
+DWG must be converted to DXF or PDF. Cable routes are straight endpoint estimates, not wall-following installation paths. Drawing packs print to fit the page; they are not guaranteed physical-scale CAD sheets. The English/Thai selector translates interface labels, instructions, statuses and messages, and is remembered on this browser. New generated room names and design explanations follow the selected language. Uploaded drawing text and previously written customer/project content retain their original language. Drawing-pack headings and instructions follow the chosen report language. Phone layouts stack fields, expand touch targets, wrap navigation and let tables scroll horizontally.
+
+Selecting **Analyze plan** sends the rendered plan image, filename, brief, entered settings, approved catalog records (up to 30), locked placements and prohibited zones to OpenAI. Original PDF/DXF files are processed locally. Credentials remain server-side. The approval setting is enabled for this pilot following the owner's authorization.
+
+## Consistency
+
+The server validates device counts and geometry before accepting a response. A SHA-256 key includes the complete request, model, reasoning setting and rule version. Up to 20 identical successful requests reuse a result in server memory. This cache resets when the server restarts; generated results across separate sessions are not guaranteed identical. Save the project JSON to preserve a specific design and use device preservation when regenerating.
+
+## Handoff checks
+
+Browser checks passed for properties, scale confirmation, project save/restore, catalog import, invalid logo rejection, undo/redo and drawing pack creation. Server checks passed for exact and zero quantities, cache isolation, approval gating, rejected incorrect AI quantities and PNG preview. A live OpenAI call on a synthetic plan returned exactly 2 CCTV, 1 AP, 1 router, 1 switch and 1 NVR. These checks do not validate engineering performance or representative customer drawings.
+
+## Accuracy limits
+
+The result is a preliminary, engineer-editable concept, not a construction drawing or a guarantee of camera coverage or Wi-Fi performance. Confirm scale, room dimensions, ceilings, wall materials, obstructions, privacy boundaries, mounting options and product specifications before issuing a customer design. Wi-Fi coverage is a relative planning estimate; site survey is required to validate performance.
+
+The current PDF parser renders pages as images. DXF import supports common modelspace lines, polylines, circles, and text. Paper space, external references, raster underlays, 3D CAD solids, and some vendor-specific objects may need to be flattened/exported to PDF or simplified before import.
+
+## Environment settings
+
+- `OPENAI_API_KEY`: optional server-side key. Required, together with explicit data-flow approval, for visual AI analysis.
+- `AITS_AI_PLAN_DATA_APPROVED`: defaults to `false`. Must be set to `true` only after AITS has authorized sending plan images and the associated design context to the provider.
+- `OPENAI_MODEL`: API model. Defaults to `gpt-6-astra`; change it if a different model is needed.
+- `OPENAI_REASONING_EFFORT`: optional reasoning level. Defaults to `max` for floor-plan analysis; maximum effort can increase latency and API cost.

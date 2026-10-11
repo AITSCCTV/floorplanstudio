@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1e33" />
+  <title>AITS Floorplan Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" /><link rel="stylesheet" href="/static/workflow.css" /><link rel="stylesheet" href="/static/journey.css" /><link rel="stylesheet" href="/static/responsive.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="AITS Floorplan Studio home">
+        <span class="brand-mark">A</span>
+        <span><b>AITS</b><small>FLOORPLAN STUDIO</small></span>
+      </a>
+      <div class="side-caption">WORKSPACE</div>
+      <button class="side-link active" id="newProjectBtn"><span class="side-icon">＋</span>New design</button>
+      <button class="side-link" id="saveProjectBtn"><span class="side-icon">▣</span>Save project</button>
+      <button class="side-link" id="openProjectBtn"><span class="side-icon">↧</span>Open saved project</button>
+      <label class="side-link side-upload" for="fileInput"><span class="side-icon">↥</span>Upload plan</label>
+      <div class="side-divider"></div>
+      <div class="side-caption">LAYERS</div>
+      <label class="layer-row"><input id="layerCameras" type="checkbox" checked><span class="layer-dot cam"></span>CCTV cameras</label>
+      <label class="layer-row"><input id="layerWifi" type="checkbox" checked><span class="layer-dot wifi"></span>Wi-Fi access points</label>
+      <label class="layer-row"><input id="layerNetwork" type="checkbox" checked><span class="layer-dot network"></span>Network equipment</label>
+      <label class="layer-row"><input id="layerFov" type="checkbox"><span class="layer-dot fov"></span>Coverage overlays</label>
+      <div class="side-spacer"></div>
+      
+      
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Projects</span><span class="crumb-sep">/</span><b id="projectCrumb">New floor plan</b></div>
+        <div class="top-actions"><span class="draft-pill"><i></i> Draft</span><div class="export-wrap"><button class="btn btn-quiet" id="exportBtn">Export PDF <span class="download-icon">↓</span></button><button class="btn btn-quiet export-more" id="exportMoreBtn" aria-label="More export options">⌄</button><div class="export-menu hidden" id="exportMenu"><button id="exportSvgBtn">Download annotated SVG</button><button id="exportJsonBtn">Save project file</button></div></div></div>
+      </header>
+
+      <section class="intro-row">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span>SECURITY + NETWORK DESIGN</div><h1>Plan it before you install it.</h1><p class="intro-copy">Upload a floor plan, describe the site, and build a clear first-pass device layout.</p></div>
+        <div class="intro-stats"><div class="stat-icon">⌖</div><div><b>Ready for engineering review</b><small>Preliminary design workspace</small></div></div>
+      </section>
+
+      <section class="setup-card">
+        <div class="step-head"><div class="step-number">01</div><div><h2>Start with a floor plan</h2><p>PDF, image or DXF · plans stay in this browser session</p></div></div>
+        <div id="dropzone" class="dropzone">
+          <div class="upload-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"/></svg></div>
+          <div class="upload-copy"><b id="uploadTitle">Drop your floor plan here</b><span id="uploadHint">PDF, image or DXF · up to 50 MB · DWG: export to PDF, image or DXF</span></div>
+          <label for="fileInput" class="btn btn-outline">Browse files</label>
+          <input id="fileInput" type="file" accept=".pdf,.dxf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden />
+        </div>
+        <div class="plan-meta-row"><div class="file-chip" id="fileChip"><span class="file-icon">▤</span><span id="fileName">Sample office plan</span><span class="file-badge" id="fileBadge">DEMO</span><select id="pageSelect" class="page-select hidden" aria-label="PDF page"></select></div><div id="planNote" class="plan-note">Example layout · Replace with a customer plan to begin</div></div>
+      </section>
+
+      <div class="work-grid">
+        <section class="canvas-card">
+          <div class="canvas-head">
+            <div class="canvas-title"><span class="canvas-file-icon">▧</span><div><b id="canvasName">Sample office plan</b><small id="canvasSub">Floor 1 · Preliminary device layout</small></div></div>
+            <div class="canvas-actions"><button class="icon-btn" id="zoomOut" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button><span class="zoom-label" id="zoomLabel">100%</span><button class="icon-btn" id="zoomIn" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button><button class="icon-btn expand-btn" id="fitBtn" title="Fit plan" aria-label="Fit plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H5v4m10-4h4v4M5 15v4h4m10-4v4h-4"/></svg></button></div>
+          </div>
+          <div class="view-tabs" role="tablist">
+            <button class="view-tab active" data-view="plan"><span class="tab-icon">▦</span>Plan</button>
+            <button class="view-tab" data-view="wifi"><span class="tab-icon">◉</span>Wi-Fi coverage</button>
+            <button class="view-tab" data-view="camera"><span class="tab-icon">◔</span>Camera views</button>
+            <button class="view-tab" data-view="3d"><span class="tab-icon">◇</span>3D preview</button>
+            <span class="tab-spacer"></span><button id="analyzeBtn" class="btn btn-primary analyze-btn"><span class="sparkle">✦</span> Analyze plan</button>
+          </div>
+          <div class="canvas-stage" id="canvasStage">
+            <div class="canvas-paper" id="canvasPaper">
+              <svg id="planSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" aria-label="Floor plan design canvas"></svg>
+            </div>
+            <div class="canvas-watermark">AITS · PRELIMINARY DESIGN</div>
+            <div class="canvas-scale"><span></span><b>5 m</b></div>
+            <div id="viewToast" class="view-toast hidden">Approximate planning view · Confirm on site</div>
+          </div>
+          <div class="canvas-foot"><span><i class="green-dot"></i><span id="canvasStatus">Ready for design</span></span><span id="deviceCountFoot">7 devices · 4 cameras · 2 APs</span></div>
+        </section>
+
+        <aside class="inspector">
+          <div class="inspector-title"><div><span class="section-index">02</span><h2>Design brief</h2></div><button class="more-btn" title="Design options">···</button></div>
+          <p class="inspector-intro">Add a little context to improve the first suggestion.</p>
+          <label class="field-label" for="siteType">Site type</label>
+          <select id="siteType" class="select-field"><option>Office</option><option>Home</option><option>Warehouse</option><option>Retail</option><option>Construction site</option><option>Other commercial site</option></select>
+          <div class="field-two"><div><label class="field-label" for="ceilingHeight">Ceiling height</label><div class="unit-input"><input id="ceilingHeight" type="number" min="2" max="12" value="3.0" step="0.1"><span>m</span></div></div><div><label class="field-label" for="floorWidth">Plan width</label><div class="unit-input"><input id="floorWidth" type="number" min="1" max="500" value="20" step="0.5"><span>m</span></div></div></div>
+          <label class="field-label" for="wallType">Main wall material</label>
+          <select id="wallType" class="select-field"><option value="unknown">Not sure yet</option><option value="lightweight partition">Lightweight partition</option><option value="brick or block">Brick / block</option><option value="reinforced concrete">Reinforced concrete</option><option value="mixed">Mixed materials</option></select>
+          <label class="field-label" for="customerNeeds">Customer needs <span class="optional">OPTIONAL</span></label>
+          <textarea id="customerNeeds" class="text-field" rows="3" placeholder="e.g. Cover the main entrance, stock room and loading bay. Reliable Wi-Fi in the meeting rooms."></textarea>
+          <div class="device-spec-head"><span>INITIAL DEVICE COUNT</span><small>Editable after analysis</small></div>
+          <div class="count-row"><span><span class="mini-device cam">◉</span>CCTV cameras</span><div class="count-step"><button data-count="cameras" data-delta="-1">−</button><b id="cameraCount">4</b><button data-count="cameras" data-delta="1">＋</button></div></div>
+          <div class="count-row"><span><span class="mini-device wifi">◉</span>Wi-Fi access points</span><div class="count-step"><button data-count="aps" data-delta="-1">−</button><b id="apCount">2</b><button data-count="aps" data-delta="1">＋</button></div></div>
+          <button id="analyzeBtnSide" class="btn btn-primary full-btn"><span class="sparkle">✦</span> Analyze &amp; suggest</button>
+          <div id="aiNotice" class="ai-notice"><span class="notice-icon">i</span><span>Plan suggestions are preliminary. An AITS designer should verify device locations, scale and performance.</span></div>
+          <div id="aiSummary" class="ai-summary hidden"></div>
+          <div class="inspector-divider"></div>
+          <div class="device-list-head"><h3>Placed devices</h3><button id="addDeviceBtn" class="add-device-btn">＋ Add</button></div>
+          <div id="deviceList" class="device-list"></div>
+          <div class="assumption-box hidden" id="assumptionBox"><b>Review before sharing</b><ul id="assumptionList"></ul></div>
+        </aside>
+      </div>
+      <footer class="page-footer"><span>Floorplan Studio <b>v0.1</b></span><span>AI-assisted · Human-approved · AITS</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <input id="projectInput" type="file" accept=".json,application/json" hidden />
+  <script src="/static/app.js" defer></script><script src="/static/workflow.js" defer></script><script src="/static/journey.js" defer></script><script src="/static/dimensions.js" defer></script><script src="/static/i18n.js" defer></script>
+</body>
+</html>
