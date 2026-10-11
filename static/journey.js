@@ -82,14 +82,16 @@
   el('exportBtn').onclick=()=>go(4);el('exportBtn').textContent='Save & export →';
 
   const copy={
-    1:['Start with your drawing','Upload a floor plan to begin. We will show a preview so you can check the selected page.','Continue to requirements →','Next: describe the site and choose your device quantities.'],
+    1:['Start with your drawing','Upload a floor plan or create a draft from site photos. Check the preview before continuing.','Continue to requirements →','Next: describe the site and choose your device quantities.'],
     2:['Tell us what you need','Set the site details and device quantities. You can refine the layout after it is generated.','Generate layout →','Next: generate device placements and an explanation to review.'],
     3:['Review and adjust your layout','Check each placement and read the design notes. Select a device on the plan to edit its properties.','Continue to export →','Next: save your editable project or create a drawing pack.'],
     4:['Save and share your work','Choose an output below. Saving a project keeps the drawing and settings together for future edits.','Save editable project','Your project file is downloaded to this computer.']
   };
   let current=1,sampleChosen=false,busy=false;
+  window.aitsJourneyGo=(n)=>go(n);
   function go(n,focus=true){
     if(busy)return;
+    if(window.aitsJourneyCanGo&&!window.aitsJourneyCanGo(n))return;
     if(n>1&&state.kind==='demo'&&!sampleChosen){el('journeyMessage').textContent='Upload a plan or choose “Try sample office” to continue.';return;}
     if(n>2&&!state.devices.length&&state.analysis.mode!=='ai'){el('journeyMessage').textContent='Generate a layout in step 2 before reviewing or exporting it.';return;}
     current=n;const c=copy[n];
@@ -105,6 +107,7 @@
     el('fileChip').hidden=n===1&&state.kind==='demo';
     el('journeyEditSample').hidden=state.kind!=='demo';
     el('journeyMode').textContent=state.kind==='demo'?(n===1?'No plan uploaded':'Sample office'):state.fileName;
+    window.aitsJourneyStepChanged?.(n);
     if(focus){el('journeyTitle').focus({preventScroll:true});shell.scrollIntoView({behavior:'smooth',block:'start'});}
   }
   el('journeySample').onclick=()=>{sampleChosen=true;go(2);};

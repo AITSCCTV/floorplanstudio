@@ -75,3 +75,8 @@ Do not call the tool production-ready until all of these have an owner and evide
 3. Define the product catalog and engineer approval/export requirements.
 4. Implement identity, project storage/revisions, access audit, deletion, and the review workflow against those decisions.
 5. Replace generic coverage assumptions with verified inputs/calculations, then run an engineer-led pilot before wider deployment.
+
+
+## Photo-survey pilot addition — 11 October 2026
+
+The local app now offers one-floor photo batches (up to 12 JPEG/PNG views), free-text handwritten symbol legends, source-photo correspondence, preserved marked devices and editable rectangular room schematics. Missing dimensions and room relationships remain assumptions; door/window and irregular-wall geometry are not reconstructed. A photo-derived plan is not a measured architectural drawing. Users review the reconstruction before requesting additional placements. Existing PDF/DXF/image and export workflows remain available. Resized source photographs, labels and symbol evidence are included in saved projects. The existing server key and approved OpenAI data flow gate this route. Startup and the displayed upload screen were inspected; live reconstruction and functional tests were not run for this addition. A representative on-site photo set is needed to assess reconstruction and symbol recognition quality.

@@ -31,6 +31,16 @@ DWG must be converted to DXF or PDF. Cable routes are straight endpoint estimate
 
 Selecting **Analyze plan** sends the rendered plan image, filename, brief, entered settings, approved catalog records (up to 30), locked placements and prohibited zones to OpenAI. Original PDF/DXF files are processed locally. Credentials remain server-side. The approval setting is enabled for this pilot following the owner's authorization.
 
+## Site photos and hand-drawn markings
+
+In step 1, select **I have site photos**. Add up to 12 PNG/JPEG photographs of one floor, label every view, describe room connections and provide a free-text symbol legend. Overall width/depth and per-photo measurements are optional. Metric and imperial input units are supported. The browser resizes photographs to a maximum 1400-pixel edge before sending them for reconstruction.
+
+Select **Create draft floorplan** to create a schematic of rectangular rooms. Review the source-photo correspondence, inferred dimensions, recognised device markings and unclear symbols in step 2. Room positions and sizes can be edited. Marked CCTV/AP/router/switch/NVR devices are preserved during subsequent generation; uncheck Preserve in device properties to move a device. 2/4 Gang is retained as a device property when interpretable. Requested quantities are totals, including marked devices. Choose **Use this floorplan with marked devices only** to skip additional placement generation, or generate a complete layout using the normal quantity controls.
+
+This is an approximate photo interpretation, not photogrammetric reconstruction or measured CAD. Rooms are simplified to rectangles; exact wall shapes, door/window geometry and hidden connections are not reconstructed. Missing measurements and ambiguous photo relationships are recorded as assumptions/questions. Unclear/unsupported symbols are listed for review and are not automatically included as confirmed devices. Saved project files include the compressed source photographs and symbol evidence; handle them as customer/site data. Stored floors retain their individual survey records.
+
+The existing OpenAI key and plan-data approval setting also gate photo reconstruction. The resized photos, filenames, room labels, notes, symbol legend, floor name, dimensions and selected language are sent to OpenAI when creating a draft. Credentials stay on the server and are excluded from Git. The new workflow has English/Thai labels and phone layouts. The server starts with the new route; no live photo-reconstruction or functional tests were run for this update.
+
 ## Consistency
 
 The server validates device counts and geometry before accepting a response. A SHA-256 key includes the complete request, model, reasoning setting and rule version. Up to 20 identical successful requests reuse a result in server memory. This cache resets when the server restarts; generated results across separate sessions are not guaranteed identical. Save the project JSON to preserve a specific design and use device preservation when regenerating.

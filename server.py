@@ -395,3 +395,7 @@ app.mount("/static", StaticFiles(directory=STATIC), name="static")
 @app.get("/")
 def home() -> FileResponse:
     return FileResponse(STATIC / "index.html")
+
+
+# Register the optional photo-survey workflow after the shared models are defined.
+import survey  # noqa: E402,F401

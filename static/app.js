@@ -67,6 +67,7 @@ function dxfBackground() {
 }
 
 function basePlan() {
+  if (state.kind === 'survey' && window.siteSurveyBackground) return window.siteSurveyBackground();
   if (state.image) return `<rect class="floor-bg" width="1000" height="${h()}"/><image href="${state.image}" x="0" y="0" width="1000" height="${h()}" preserveAspectRatio="none"/>`;
   if (state.kind === 'dxf') return `<rect class="floor-bg" width="1000" height="${h()}"/>${dxfBackground()}`;
   return demoBackground();
@@ -113,6 +114,7 @@ function renderWifi() {
 }
 
 function renderRooms() {
+  if (state.kind === 'survey') return '';
   if (!state.rooms.length) return '';
   return state.rooms.map((r) => {
     const y = r.normalized ? scaleY(r.y) : Number(r.y);
@@ -428,7 +430,12 @@ async function analyze() {
     const response = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const result = await response.json(); if (!response.ok) throw new Error(result.detail || 'Analysis failed.');
     const createdAtPlanHeight = result.devices.map((d) => ({ ...d, x: Math.max(12, Math.min(988, Number(d.x))), y: Math.max(12, Math.min(988, Number(d.y))) * h() / 1000 }));
-    state.devices = createdAtPlanHeight; state.rooms = (result.rooms || []).map((r) => ({ ...r, normalized: true }));
+    state.devices = createdAtPlanHeight;
+    if (state.kind !== 'survey') state.rooms = (result.rooms || []).map((r) => ({ ...r, normalized: true }));
+    if (state.kind === 'survey' && workflow.survey) {
+      result.assumptions = [...new Set([...workflow.survey.assumptions, ...(result.assumptions || [])])].slice(0,30);
+      result.questions = [...new Set([...workflow.survey.questions, ...(result.questions || [])])].slice(0,30);
+    }
     state.requestedCameras = Math.max(0, state.devices.filter((d)=>d.type==='cctv').length);
     state.requestedAps = Math.max(0, state.devices.filter((d)=>d.type==='ap').length);
     state.analysis = result; $('#aiSummary').textContent = result.summary || 'Layout suggestions are ready for review.'; $('#aiSummary').classList.remove('hidden');
@@ -480,7 +487,7 @@ function projectNumber(value, label, min, max) {
 
 function validateProject(p) {
   if (!p || p.app !== 'AITS Floorplan Studio' || p.version !== 1) throw new Error('Unsupported AITS project file or version.');
-  if (!['demo', 'pdf', 'dxf', 'image'].includes(p.kind)) throw new Error('Invalid project plan type.');
+  if (!['demo', 'pdf', 'dxf', 'image', 'survey'].includes(p.kind)) throw new Error('Invalid project plan type.');
   const fileName = typeof p.fileName === 'string' ? p.fileName.replace(/[\x00-\x1f\x7f]/g, '').slice(0, 180) : '';
   if (!fileName) throw new Error('Project name is missing.');
   const planHeight = projectNumber(p.planHeight, 'plan dimensions', 1, 6000);
