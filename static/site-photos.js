@@ -2,6 +2,7 @@
 (() => {
   window.aitsExtraTranslations={
     'Starting material':'ข้อมูลเริ่มต้น','I have a floorplan file':'มีไฟล์ผังอยู่แล้ว','I have site photos':'มีภาพถ่ายหน้างาน',
+    'You can type in Thai, English or both. Describe symbols in your own words.':'พิมพ์ภาษาไทย อังกฤษ หรือทั้งสองภาษาได้ อธิบายสัญลักษณ์ด้วยคำของคุณเอง',
     'Upload a floor plan or create a draft from site photos. Check the preview before continuing.':'อัปโหลดผังหรือสร้างแบบร่างจากภาพหน้างาน ตรวจสอบภาพตัวอย่างก่อนดำเนินการต่อ',
     'Create a floorplan from site photos':'สร้างผังจากภาพหน้างาน',
     'Upload several views of one floor. Include overlapping views, entrances and corners. Marked photos are welcome.':'อัปโหลดภาพหลายมุมของชั้นเดียวกัน รวมมุมที่ต่อเนื่องกัน ทางเข้า และมุมห้อง สามารถใช้ภาพที่วาดสัญลักษณ์ไว้แล้วได้',
@@ -69,6 +70,7 @@
     <div id="surveyPhotos" class="survey-photo-grid"></div>
     <label>Room connections and site notes<textarea id="surveyConnections" rows="3" maxlength="4000" placeholder="Example: Entrance leads into reception. The office is behind reception; the corridor is on the right."></textarea></label>
     <label>Your hand-drawn symbol legend<textarea id="surveyLegend" rows="3" maxlength="3000" placeholder="Example: Red box = CCTV. Blue circle = AP. Arrow = camera direction. 2G = 2 Gang box. The same numbered mark in two photos is one device."></textarea></label>
+    <p>You can type in Thai, English or both. Describe symbols in your own words.</p>
     <p>Use matching numbers for the same device in different photos. Unclear symbols will be listed for review.</p>
     <div class="survey-dimensions"><label>Overall floor width (optional)<input id="surveyWidth" type="number" step="any" min="0.01"></label><label>Overall floor depth (optional)<input id="surveyHeight" type="number" step="any" min="0.01"></label><label>Measurement unit<select id="surveyUnit"><option value="m">Metres (m)</option><option value="cm">Centimetres (cm)</option><option value="mm">Millimetres (mm)</option><option value="ft">Feet (ft)</option><option value="in">Inches (in)</option><option value="yd">Yards (yd)</option></select></label></div>
     <p>Without measurements, dimensions and room connections are estimates. Review them before sharing the drawing.</p>
