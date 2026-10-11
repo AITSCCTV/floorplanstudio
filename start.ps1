@@ -9,8 +9,13 @@ if (-not (Test-Path $venvPython)) {
     & $venvPython -m pip install -r (Join-Path $appDir 'requirements.txt')
 }
 
-if (-not (Test-Path (Join-Path $appDir '.env')) -and (Test-Path (Join-Path $appDir '.env.example'))) {
-    Copy-Item (Join-Path $appDir '.env.example') (Join-Path $appDir '.env')
+if (-not (Test-Path (Join-Path $appDir '.env'))) {
+    @'
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-6-astra
+OPENAI_REASONING_EFFORT=max
+AITS_AI_PLAN_DATA_APPROVED=false
+'@ | Set-Content -LiteralPath (Join-Path $appDir '.env') -Encoding utf8
     Write-Host 'AI is in preview mode. Add your OpenAI API key to floorplan-studio\.env to enable plan analysis.' -ForegroundColor Yellow
 }
 
