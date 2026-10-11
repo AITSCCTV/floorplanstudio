@@ -54,10 +54,3 @@ Browser checks passed for properties, scale confirmation, project save/restore, 
 The result is a preliminary, engineer-editable concept, not a construction drawing or a guarantee of camera coverage or Wi-Fi performance. Confirm scale, room dimensions, ceilings, wall materials, obstructions, privacy boundaries, mounting options and product specifications before issuing a customer design. Wi-Fi coverage is a relative planning estimate; site survey is required to validate performance.
 
 The current PDF parser renders pages as images. DXF import supports common modelspace lines, polylines, circles, and text. Paper space, external references, raster underlays, 3D CAD solids, and some vendor-specific objects may need to be flattened/exported to PDF or simplified before import.
-
-## Environment settings
-
-- `OPENAI_API_KEY`: optional server-side key. Required, together with explicit data-flow approval, for visual AI analysis.
-- `AITS_AI_PLAN_DATA_APPROVED`: defaults to `false`. Must be set to `true` only after AITS has authorized sending plan images and the associated design context to the provider.
-- `OPENAI_MODEL`: API model. Defaults to `gpt-6-astra`; change it if a different model is needed.
-- `OPENAI_REASONING_EFFORT`: optional reasoning level. Defaults to `max` for floor-plan analysis; maximum effort can increase latency and API cost.
