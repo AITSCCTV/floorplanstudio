@@ -56,7 +56,7 @@
     'Could not reconstruct a usable floorplan from these photos. Add clearer room labels, connections or measurements and try again. Your current plan is unchanged.':'ยังสร้างผังที่ใช้งานได้จากภาพชุดนี้ไม่ได้ โปรดเพิ่มชื่อห้อง การเชื่อมต่อ หรือระยะที่วัดให้ชัดเจนแล้วลองใหม่ แบบปัจจุบันยังคงอยู่',
     'Created schematic from site photos':'สร้างผังประมาณจากภาพหน้างาน','Reviewed photo reconstruction':'ตรวจสอบผังจากภาพหน้างาน','Edited photo floor dimensions':'แก้ไขขนาดชั้นจากภาพหน้างาน','Edited reconstructed room':'แก้ไขห้องที่สร้างจากภาพ','Removed recognised marking':'ลบสัญลักษณ์ที่อ่านได้'
   };
-  const link=document.createElement('link');link.rel='stylesheet';link.href='/static/site-photos.css';document.head.append(link);
+  const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('site-photos.css',document.currentScript.src).href;document.head.append(link);
   const stage=document.getElementById('journeyStep1'),upload=document.querySelector('.setup-card');
   const choose=document.createElement('div');choose.className='survey-source';choose.setAttribute('aria-label','Starting material');
   choose.innerHTML='<button type="button" id="sourceDrawing" aria-pressed="true">I have a floorplan file</button><button type="button" id="sourcePhotos" aria-pressed="false">I have site photos</button>';
