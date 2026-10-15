@@ -11,7 +11,7 @@ from typing import Literal
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from server import AnalyzeRequest, DesignRoom, DesignDevice, DESIGN_CACHE, DESIGN_LOCK, ai_data_flow_approved, app, env_file
+from server import AnalyzeRequest, DesignRoom, DesignDevice, DESIGN_CACHE, DESIGN_LOCK, design_reasoning_effort, ai_data_flow_approved, app, env_file
 
 VERSION = 'aits-photo-survey-2026-10-11-v2-thai-input'
 
@@ -98,7 +98,7 @@ def site_survey(req: SurveyRequest):
     if sum(len(p.imageDataUrl) for p in req.photos) > 18_000_000:
         raise HTTPException(413, 'The photo batch is too large. Use fewer or smaller images.')
     model = os.getenv('OPENAI_MODEL', 'gpt-6-astra')
-    effort = os.getenv('OPENAI_REASONING_EFFORT', 'max')
+    effort = design_reasoning_effort()
     key = hashlib.sha256(json.dumps([VERSION, model, effort, req.model_dump()], sort_keys=True).encode()).hexdigest()
     with DESIGN_LOCK:
         cached = DESIGN_CACHE.get(key)

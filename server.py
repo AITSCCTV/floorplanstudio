@@ -78,6 +78,13 @@ def b64_data(data: bytes, mime: str) -> str:
     return f"data:{mime};base64,{base64.b64encode(data).decode('ascii')}"
 
 
+def design_reasoning_effort() -> str:
+    # Interactive web requests need a practical latency budget. Local configuration is retained.
+    if os.getenv("AITS_HOSTED", "").lower() == "true":
+        return os.getenv("OPENAI_INTERACTIVE_REASONING_EFFORT", "high").strip()
+    return os.getenv("OPENAI_REASONING_EFFORT", "max").strip()
+
+
 def ai_data_flow_approved() -> bool:
     return os.getenv("AITS_AI_PLAN_DATA_APPROVED", "").strip().lower() in {"1", "true", "yes"}
 
@@ -322,7 +329,7 @@ def openai_design(req: AnalyzeRequest) -> dict[str, Any]:
     if not ai_data_flow_approved():
         raise HTTPException(status_code=503, detail="AI analysis is disabled until AITS explicitly approves sending plan images and design context to the configured provider. Your plan is unchanged.")
     model = os.getenv("OPENAI_MODEL", "gpt-6-astra").strip()
-    reasoning_effort = os.getenv("OPENAI_REASONING_EFFORT", "max").strip()
+    reasoning_effort = design_reasoning_effort()
     prompt = (
         "Analyze this architectural floor plan for a preliminary AITS security and Wi-Fi design. "
         "Return coordinates on a normalized 0..1000 grid covering the entire visible plan image; x grows right and y grows down. "
@@ -411,7 +418,7 @@ def analyze(req: AnalyzeRequest) -> dict[str, Any]:
     if sum([req.cameraCount, req.apCount, req.routerCount, req.switchCount, req.nvrCount]) > 75:
         raise HTTPException(status_code=422, detail='Request at most 75 devices in total.')
     # A session cache avoids repeated paid calls and provides identical results for identical inputs.
-    key = hashlib.sha256(json.dumps([req.model_dump(), os.getenv('OPENAI_MODEL'), os.getenv('OPENAI_REASONING_EFFORT'), RULE_VERSION], sort_keys=True).encode()).hexdigest()
+    key = hashlib.sha256(json.dumps([req.model_dump(), os.getenv('OPENAI_MODEL'), design_reasoning_effort(), RULE_VERSION], sort_keys=True).encode()).hexdigest()
     with DESIGN_LOCK:
         if not ai_data_flow_approved():
             raise HTTPException(status_code=503, detail='Plan data flow is not approved.')
