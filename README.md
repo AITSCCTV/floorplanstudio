@@ -54,3 +54,12 @@ Browser checks passed for properties, scale confirmation, project save/restore, 
 The result is a preliminary, engineer-editable concept, not a construction drawing or a guarantee of camera coverage or Wi-Fi performance. Confirm scale, room dimensions, ceilings, wall materials, obstructions, privacy boundaries, mounting options and product specifications before issuing a customer design. Wi-Fi coverage is a relative planning estimate; site survey is required to validate performance.
 
 The current PDF parser renders pages as images. DXF import supports common modelspace lines, polylines, circles, and text. Paper space, external references, raster underlays, 3D CAD solids, and some vendor-specific objects may need to be flattened/exported to PDF or simplified before import.
+
+
+## GitHub Pages uploads
+
+The GitHub Pages interface opens PDF (up to 20 pages), PNG/JPEG and common DXF modelspace geometry inside the browser. PDF.js 6.4.299 and dxf-parser 1.1.2 are bundled with their licenses under `static/vendor`; no drawing is sent to a third-party preview service. DXF blocks, arcs, bulges, external references and advanced entities may be omitted; export to PDF for full drawing fidelity.
+
+GitHub Pages does not run the Python API. Plan generation and photo reconstruction require a separately connected backend; they now report a service message instead of attempting to parse an HTML error page as JSON. The local Python application retains its existing preview and generation endpoints. Its preview page selection now passes the page index as a query parameter, matching the backend contract.
+
+After editing `static/index.html`, regenerate the root `index.html` with `/static/` asset references replaced by `./static/` before publishing Pages.

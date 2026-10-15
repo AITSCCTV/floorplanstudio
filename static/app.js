@@ -339,7 +339,7 @@ function toast(message) {
 
 async function refreshStatus() {
   try {
-    const r = await fetch('/api/status'); const s = await r.json();
+    const r = await fetch('/api/status'); const s = await window.aitsReadJson(r);
     if (!s.aiReady && !s.aiConfigured) $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>The sample layout is illustrative. AI is off because no provider key is configured. Your current plan and device layout stay unchanged.</span>';
     else if (!s.aiReady) $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>AI is paused until AITS explicitly approves sending plan images, file names, design briefs and settings to the configured provider. Your current plan and device layout stay unchanged.</span>';
     else $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>When you analyze, the rendered plan page, file name, design brief and entered settings are sent to the configured AI provider. Review the suggested placements and dimensions before sharing your drawing.</span>';
@@ -353,11 +353,15 @@ async function uploadFile(file, pageIndex = 0) {
   if (file.size > 50 * 1024 * 1024) { toast('This first version accepts files up to 50 MB.'); return; }
   $('#uploadTitle').textContent = 'Reading floor plan…'; $('#uploadHint').textContent = 'Rendering the selected page and preparing the drawing';
   $('#canvasStatus').textContent = 'Loading plan…';
-  const body = new FormData(); body.append('file', file); body.append('page', pageIndex);
   try {
-    const response = await fetch('/api/preview', { method: 'POST', body });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.detail || 'Could not read the floor plan.');
+    let result;
+    if (location.hostname.endsWith('.github.io')) {
+      result = await window.aitsBrowserPreview(file, pageIndex);
+    } else {
+      const body = new FormData(); body.append('file', file);
+      const response = await fetch(`/api/preview?page=${pageIndex}`, { method: 'POST', body });
+      result = await window.aitsReadJson(response);
+    }
     state.kind = result.kind; state.fileName = result.name; state.image = result.image || null; state.entities = result.entities || [];
     state.planHeight = result.height || 700; state.page = result.page ? result.page - 1 : 0; state.pageCount = result.pageCount || 1; state.sourceFile = file;
     state.rooms = []; state.analysis = { mode: 'pending', summary: '', assumptions: [], questions: [] };
@@ -398,7 +402,7 @@ async function analyze() {
   state.lastAnalysisError = null;
   try {
     const statusResponse = await fetch('/api/status');
-    const status = await statusResponse.json();
+    const status = await window.aitsReadJson(statusResponse);
     if (!status.aiReady) {
       $('#aiSummary').textContent = !status.aiConfigured
         ? 'Visual AI is not configured. Your floor plan and device layout were left unchanged.'
@@ -429,7 +433,7 @@ async function analyze() {
       apCount: state.analysis.mode === 'pending' ? state.requestedAps : state.devices.filter((d)=>d.type==='ap').length,
     };
     const response = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const result = await response.json(); if (!response.ok) throw new Error(result.detail || 'Analysis failed.');
+    const result = await window.aitsReadJson(response); if (!response.ok) throw new Error(result.detail || 'Analysis failed.');
     const createdAtPlanHeight = result.devices.map((d) => ({ ...d, x: Math.max(12, Math.min(988, Number(d.x))), y: Math.max(12, Math.min(988, Number(d.y))) * h() / 1000 }));
     state.devices = createdAtPlanHeight;
     if (state.kind !== 'survey') state.rooms = (result.rooms || []).map((r) => ({ ...r, normalized: true }));

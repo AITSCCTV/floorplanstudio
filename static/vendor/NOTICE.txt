@@ -1,0 +1,4 @@
+Bundled browser readers:
+pdfjs-dist 6.4.299 (Mozilla PDF.js), Apache-2.0, https://github.com/mozilla/pdf.js
+dxf-parser 1.1.2, MIT, https://github.com/gdsestimating/dxf-parser
+See included license files.
