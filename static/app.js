@@ -399,9 +399,13 @@ function canvasImageData() {
 }
 
 async function analyze() {
+  return window.aitsRunGeneration(analyzeRequest);
+}
+
+async function analyzeRequest(signal) {
   state.lastAnalysisError = null;
   try {
-    const statusResponse = await window.aitsFetch('/api/status');
+    const statusResponse = await window.aitsFetch('/api/status', {signal});
     const status = await window.aitsReadJson(statusResponse);
     if (!status.aiReady) {
       $('#aiSummary').textContent = !status.aiConfigured
@@ -412,16 +416,19 @@ async function analyze() {
       toast('No AI key configured. The current layout was left unchanged.');
       return;
     }
-  } catch {
-    state.lastAnalysisError = 'The design service is unavailable. Your requirements are saved in this session; try again shortly.';
-    toast('Could not check the AI connection. Your layout was left unchanged.');
+  } catch (error) {
+    if (signal.aborted) return;
+    state.lastAnalysisError = error.message || 'The design service is unavailable. Your requirements are saved in this session; try again shortly.';
+    toast(state.lastAnalysisError);
     return;
   }
   $('#analyzeBtn').disabled = true; $('#analyzeBtnSide').disabled = true;
   $('#analyzeBtn').innerHTML = '<span class="spinner"></span> Reading plan…'; $('#analyzeBtnSide').innerHTML = '<span class="spinner"></span> Reading plan…';
   $('#canvasStatus').textContent = 'Analyzing floor plan…';
   try {
+    window.aitsGenerationPhase(1);
     const imageDataUrl = await canvasImageData();
+    signal.throwIfAborted();
     const payload = {
       routerCount: typeof workflow === 'undefined' ? 1 : workflow.requested.router, switchCount: typeof workflow === 'undefined' ? 1 : workflow.requested.switch, nvrCount: typeof workflow === 'undefined' ? 1 : workflow.requested.nvr,
       designContext: typeof workflow === 'undefined' ? '' : JSON.stringify({catalog:workflow.catalog.filter(c=>c.approved).slice(0,30),locked:(workflow.analysisLocks||[]).map(d=>({...d,y:d.y/h()*1000})),prohibitedZones:workflow.zones.map(z=>({...z,y:z.y/h()*1000,height:z.height/h()*1000})),scaleVerified:workflow.scaleVerified}),
@@ -432,8 +439,11 @@ async function analyze() {
       cameraCount: state.analysis.mode === 'pending' ? state.requestedCameras : state.devices.filter((d)=>d.type==='cctv').length,
       apCount: state.analysis.mode === 'pending' ? state.requestedAps : state.devices.filter((d)=>d.type==='ap').length,
     };
-    const response = await window.aitsFetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    window.aitsGenerationPhase(2);
+    const response = await window.aitsFetch('/api/analyze', { signal, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const result = await window.aitsReadJson(response); if (!response.ok) throw new Error(result.detail || 'Analysis failed.');
+    signal.throwIfAborted();
+    window.aitsGenerationPhase(3);
     const createdAtPlanHeight = result.devices.map((d) => ({ ...d, x: Math.max(12, Math.min(988, Number(d.x))), y: Math.max(12, Math.min(988, Number(d.y))) * h() / 1000 }));
     state.devices = createdAtPlanHeight;
     if (state.kind !== 'survey') state.rooms = (result.rooms || []).map((r) => ({ ...r, normalized: true }));
@@ -449,7 +459,7 @@ async function analyze() {
     $('#canvasStatus').textContent = '';
     $('#uploadHint').textContent = 'Layout generated · review the placements and design notes';
     draw(); toast('Plan analyzed. Review and adjust every suggestion.');
-  } catch (e) { state.lastAnalysisError=e.message; $('#canvasStatus').textContent = 'Analysis could not complete'; toast(e.message); }
+  } catch (e) { if (!signal.aborted) { state.lastAnalysisError=e.message; $('#canvasStatus').textContent = 'Analysis could not complete'; toast(e.message); } }
   finally {
     $('#analyzeBtn').disabled = false; $('#analyzeBtnSide').disabled = false;
     $('#analyzeBtn').innerHTML = '<span class="sparkle">✦</span> Analyze plan'; $('#analyzeBtnSide').innerHTML = '<span class="sparkle">✦</span> Analyze &amp; suggest';
