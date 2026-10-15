@@ -4,7 +4,7 @@ window.aitsDrawingPack = () => {
   const source=$('#planSvg'),svg=source.cloneNode(true);
   const visual=['fill','fill-opacity','stroke','stroke-width','stroke-opacity','stroke-dasharray','stroke-linecap','stroke-linejoin','paint-order','font-family','font-size','font-weight','letter-spacing','text-anchor','opacity','vector-effect'];
   const originals=[source,...source.querySelectorAll('*')],copies=[svg,...svg.querySelectorAll('*')];
-  originals.forEach((node,i)=>{const computed=getComputedStyle(node);visual.forEach(key=>copies[i].style.setProperty(key,computed.getPropertyValue(key)));});
+  originals.forEach((node,i)=>{const computed=getComputedStyle(node);visual.forEach(key=>copies[i].style.setProperty(key,computed.getPropertyValue(key).replace(/url\(["']?[^)]*#([^"')]+)["']?\)/g,'url(#$1)')));});
   svg.querySelectorAll('.rotation-control').forEach(node=>node.remove());
   svg.removeAttribute('id');svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
   const paper=['A3 landscape','A4 landscape','A4 portrait'].includes($('#paperSize').value)?$('#paperSize').value:'A4 landscape';
