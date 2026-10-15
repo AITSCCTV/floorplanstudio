@@ -73,8 +73,17 @@ function basePlan() {
   return demoBackground();
 }
 
+function cameraRoom(d) {
+  const rooms=state.rooms.map(r=>({x:Number(r.x),y:r.normalized?scaleY(r.y):Number(r.y),width:Number(r.width),height:r.normalized?scaleY(r.height):Number(r.height)}));
+  const inside=rooms.filter(r=>d.x>=r.x-8&&d.x<=r.x+r.width+8&&d.y>=r.y-8&&d.y<=r.y+r.height+8);
+  return inside.sort((a,b)=>a.width*a.height-b.width*b.height)[0] || null;
+}
+
 function sectorPath(d) {
-  const radius = (Number(d.coverageRange) || 180) * h() / 700;
+  const room=cameraRoom(d);
+  const requested=(Number.isFinite(Number(d.coverageRange))?Number(d.coverageRange):180)*h()/700;
+  const radius=Math.max(0,Math.min(requested,room?Math.hypot(room.width,room.height)*.65:Math.min(1000,h())*.28));
+  if (!radius) return '';
   const angle = Math.max(1, Math.min(359.9, Number(d.coverageAngle) || 80));
   const a1 = (Number(d.rotation) - angle / 2) * Math.PI / 180;
   const a2 = (Number(d.rotation) + angle / 2) * Math.PI / 180;
@@ -83,6 +92,12 @@ function sectorPath(d) {
   const x2 = Number(d.x) + Math.cos(a2) * radius;
   const y2 = Number(d.y) + Math.sin(a2) * radius;
   return `M ${d.x} ${d.y} L ${x1} ${y1} A ${radius} ${radius} 0 ${angle > 180 ? 1 : 0} 1 ${x2} ${y2} Z`;
+}
+
+function renderCameraCoverage(d,index) {
+  const room=cameraRoom(d)||{x:0,y:0,width:1000,height:h()};
+  const id=`camera-room-clip-${index}`;
+  return `<defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse"><rect x="${room.x}" y="${room.y}" width="${room.width}" height="${room.height}"/></clipPath></defs><path class="fov-area" clip-path="url(#${id})" d="${sectorPath(d)}"/>`;
 }
 
 function renderDevice(d) {
@@ -296,7 +311,7 @@ function draw() {
     html = basePlan();
     if (state.view === 'wifi') html += renderWifi();
     if (state.view === 'camera' || $('#layerFov').checked) {
-      html += state.devices.filter((d) => d.type === 'cctv' && deviceVisible(d)).map((d) => `<path class="fov-area" d="${sectorPath(d)}"/>`).join('');
+      html += state.devices.filter((d) => d.type === 'cctv' && deviceVisible(d)).map(renderCameraCoverage).join('');
     }
     html += renderRooms();
     html += state.devices.filter(deviceVisible).map(renderDevice).join('');

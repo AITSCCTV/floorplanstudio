@@ -3,7 +3,7 @@
   let backend = hostedPage ? sessionStorage.getItem('aitsBackendUrl') || '' : '';
   let password = '';
   const th = () => window.aitsLanguage === 'th' || document.documentElement.lang === 'th';
-  const missing = () => th() ? 'กรุณาเชื่อมต่อบริการสร้างผังก่อน โดยใช้ปุ่มเชื่อมต่อบริการด้านบน' : 'Connect the design service using the Connect service button above.';
+  const missing = () => th() ? 'กรุณาเชื่อมต่อบริการสร้างผังก่อน โดยใช้ปุ่มเข้าสู่ระบบเพื่อใช้งานด้านบน' : 'Connect the design service using the Login to use button above.';
   window.aitsFetch = (path, options = {}) => {
     if (hostedPage && !backend) return Promise.reject(Error(missing()));
     const headers = new Headers(options.headers);
@@ -14,7 +14,7 @@
     if (!hostedPage) return;
     const button = document.createElement('button');
     button.className = 'btn btn-outline'; button.type = 'button';
-    const label = () => button.textContent = backend ? (th() ? 'ตั้งค่าบริการ' : 'Service settings') : (th() ? 'เชื่อมต่อบริการ' : 'Connect service');
+    const label = () => button.textContent = th() ? 'เข้าสู่ระบบเพื่อใช้งาน' : 'Login to use';
     label();
     document.querySelector('.top-actions').prepend(button);
     new MutationObserver(label).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
@@ -22,7 +22,7 @@
       const thai = th();
       const dialog = document.createElement('dialog');
       dialog.style.cssText='width:min(480px,calc(100vw - 32px));box-sizing:border-box;border:1px solid #d7e2ed;border-radius:12px;padding:24px;color:#203b50';
-      dialog.innerHTML = `<form method="dialog"><h2>${thai?'เชื่อมต่อบริการสร้างผัง':'Connect design service'}</h2><p>${thai?'ใช้ URL บริการที่ติดตั้งแล้วและรหัสผ่านทีม ไม่ใช่ OpenAI API key':'Enter your deployed service URL and team password. Do not enter an OpenAI API key here.'}</p><label>${thai?'URL ของบริการ':'Service URL'}<input name="url" type="url" required placeholder="https://your-service.onrender.com" style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px"></label><label>${thai?'รหัสผ่านทีม':'Team password'}<input name="password" type="password" required autocomplete="off" style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px"></label><p role="status"></p><button type="button" name="cancel" class="btn btn-outline">${thai?'ยกเลิก':'Cancel'}</button> <button type="submit" class="btn btn-primary">${thai?'เชื่อมต่อ':'Connect'}</button></form>`;
+      dialog.innerHTML = `<form method="dialog"><h2>${thai?'เข้าสู่ระบบเพื่อใช้งาน':'Login to use'}</h2><p>${thai?'ใช้ URL บริการที่ติดตั้งแล้วและรหัสผ่านทีม ไม่ใช่ OpenAI API key':'Enter your deployed service URL and team password. Do not enter an OpenAI API key here.'}</p><label>${thai?'URL ของบริการ':'Service URL'}<input name="url" type="url" required placeholder="https://your-service.onrender.com" style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px"></label><label>${thai?'รหัสผ่านทีม':'Team password'}<input name="password" type="password" required autocomplete="off" style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px"></label><p role="status"></p><button type="button" name="cancel" class="btn btn-outline">${thai?'ยกเลิก':'Cancel'}</button> <button type="submit" class="btn btn-primary">${thai?'เชื่อมต่อ':'Connect'}</button></form>`;
       document.body.append(dialog);
       const form=dialog.querySelector('form');form.elements.url.value=backend;
       form.elements.cancel.onclick=()=>dialog.close();
