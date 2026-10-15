@@ -394,8 +394,15 @@ def openai_design(req: AnalyzeRequest) -> dict[str, Any]:
         return result
     except urllib.error.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"AI provider request failed with HTTP {exc.code}. Existing placements were not changed.") from exc
+    except TimeoutError as exc:
+        raise HTTPException(status_code=504, detail="The design provider did not respond within 150 seconds. Your layout is unchanged. Try again or use fewer devices.") from exc
+    except urllib.error.URLError as exc:
+        code = 504 if isinstance(exc.reason, TimeoutError) else 502
+        raise HTTPException(status_code=code, detail="The design provider could not be reached or timed out. Your layout is unchanged. Please try again shortly.") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail="The generated result did not meet the required drawing or device-count checks. Your layout is unchanged. Please try generating again.") from exc
     except Exception as exc:
-        raise HTTPException(status_code=502, detail="AI analysis failed or returned a design outside supported bounds. Existing placements were not changed.") from exc
+        raise HTTPException(status_code=502, detail="The design request could not complete. Your layout is unchanged. Please try again shortly.") from exc
 
 
 @app.post("/api/analyze")
