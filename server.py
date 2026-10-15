@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import secrets
 import base64
 import io
 import json
@@ -16,7 +17,8 @@ from typing import Any, Literal
 import ezdxf
 import pymupdf
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -47,6 +49,29 @@ def env_file() -> None:
 
 
 env_file()
+
+
+@app.middleware("http")
+async def hosted_access(request, call_next):
+    hosted = os.getenv("AITS_HOSTED", "").lower() == "true"
+    if hosted and request.url.path.startswith("/api/") and request.url.path != "/api/status" and request.method != "OPTIONS":
+        expected = os.getenv("AITS_SERVICE_PASSWORD", "")
+        supplied = request.headers.get("authorization", "").removeprefix("Bearer ")
+        if not expected:
+            return JSONResponse({"detail": "The hosted service needs a team password configured."}, status_code=503)
+        if not secrets.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8")):
+            return JSONResponse({"detail": "Connect the service with the correct team password."}, status_code=401)
+    return await call_next(request)
+
+
+app.add_middleware(CORSMiddleware,
+    allow_origins=[os.getenv("AITS_ALLOWED_ORIGIN", "https://aitscctv.github.io")],
+    allow_methods=["GET", "POST"], allow_headers=["Authorization", "Content-Type"])
+
+
+@app.get("/api/connection")
+def connection_status():
+    return status()
 
 
 def b64_data(data: bytes, mime: str) -> str:

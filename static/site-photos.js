@@ -139,7 +139,7 @@
       const payload={photos,title:by('surveyTitle').value.trim(),connections:by('surveyConnections').value,legend:by('surveyLegend').value,widthM:dim('surveyWidth'),heightM:dim('surveyHeight'),language:window.aitsLanguage==='th'?'th':'en'};
       if(payload.widthM&&payload.heightM&&Math.max(payload.widthM/payload.heightM,payload.heightM/payload.widthM)>6)throw Error(t('Use a floor width/depth ratio between 1:6 and 6:1.'));
       freeze(true);by('surveyStatus').textContent=t('Creating the schematic and reading your markings… This can take a few minutes.');
-      const response=await fetch('/api/site-survey',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await window.aitsReadJson(response);if(!response.ok)throw Error(typeof result.detail==='string'?t(result.detail):t('Check the photo labels and measurements, then try again.'));
+      const response=await window.aitsFetch('/api/site-survey',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const result=await window.aitsReadJson(response);if(!response.ok)throw Error(typeof result.detail==='string'?t(result.detail):t('Check the photo labels and measurements, then try again.'));
       remember();
       workflow.survey={...result,photos:JSON.parse(JSON.stringify(photos)),title:payload.title,connections:payload.connections,legend:payload.legend,confirmed:false};
       state.kind='survey';state.fileName=payload.title;state.image=null;state.entities=[];state.planHeight=result.floorHeightM/result.floorWidthM*1000;state.sourceFile=null;state.page=0;state.pageCount=1;state.selectedDeviceId=null;

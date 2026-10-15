@@ -339,7 +339,7 @@ function toast(message) {
 
 async function refreshStatus() {
   try {
-    const r = await fetch('/api/status'); const s = await window.aitsReadJson(r);
+    const r = await window.aitsFetch('/api/status'); const s = await window.aitsReadJson(r);
     if (!s.aiReady && !s.aiConfigured) $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>The sample layout is illustrative. AI is off because no provider key is configured. Your current plan and device layout stay unchanged.</span>';
     else if (!s.aiReady) $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>AI is paused until AITS explicitly approves sending plan images, file names, design briefs and settings to the configured provider. Your current plan and device layout stay unchanged.</span>';
     else $('#aiNotice').innerHTML = '<span class="notice-icon">i</span><span>When you analyze, the rendered plan page, file name, design brief and entered settings are sent to the configured AI provider. Review the suggested placements and dimensions before sharing your drawing.</span>';
@@ -359,7 +359,7 @@ async function uploadFile(file, pageIndex = 0) {
       result = await window.aitsBrowserPreview(file, pageIndex);
     } else {
       const body = new FormData(); body.append('file', file);
-      const response = await fetch(`/api/preview?page=${pageIndex}`, { method: 'POST', body });
+      const response = await window.aitsFetch(`/api/preview?page=${pageIndex}`, { method: 'POST', body });
       result = await window.aitsReadJson(response);
     }
     state.kind = result.kind; state.fileName = result.name; state.image = result.image || null; state.entities = result.entities || [];
@@ -401,7 +401,7 @@ function canvasImageData() {
 async function analyze() {
   state.lastAnalysisError = null;
   try {
-    const statusResponse = await fetch('/api/status');
+    const statusResponse = await window.aitsFetch('/api/status');
     const status = await window.aitsReadJson(statusResponse);
     if (!status.aiReady) {
       $('#aiSummary').textContent = !status.aiConfigured
@@ -432,7 +432,7 @@ async function analyze() {
       cameraCount: state.analysis.mode === 'pending' ? state.requestedCameras : state.devices.filter((d)=>d.type==='cctv').length,
       apCount: state.analysis.mode === 'pending' ? state.requestedAps : state.devices.filter((d)=>d.type==='ap').length,
     };
-    const response = await fetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const response = await window.aitsFetch('/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const result = await window.aitsReadJson(response); if (!response.ok) throw new Error(result.detail || 'Analysis failed.');
     const createdAtPlanHeight = result.devices.map((d) => ({ ...d, x: Math.max(12, Math.min(988, Number(d.x))), y: Math.max(12, Math.min(988, Number(d.y))) * h() / 1000 }));
     state.devices = createdAtPlanHeight;

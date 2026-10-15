@@ -1,0 +1,43 @@
+FLOORPLAN STUDIO — CONNECT THE ONLINE VERSION
+
+The GitHub Pages website cannot run the Python server or safely hold an OpenAI key.
+Use this prepared Render deployment to provide the backend.
+
+1. Open https://dashboard.render.com/select-repo?type=blueprint
+2. Sign in, create a Blueprint and choose AITSCCTV/floorplanstudio.
+   Render reads render.yaml from the main branch.
+3. Render will ask for these secret values:
+   OPENAI_API_KEY: paste your OpenAI project API key privately here.
+   AITS_SERVICE_PASSWORD: choose a long team password (at least 20 characters).
+   This is NOT the OpenAI key. Share it only with people allowed to generate plans.
+4. Review the free service plan and create the service. No hosting account or service
+   has been created automatically. OpenAI usage is billed to your OpenAI account.
+5. Wait for deployment, then copy the service's HTTPS address, for example:
+   https://aits-floorplan-api-xxxx.onrender.com
+6. Open https://aitscctv.github.io/floorplanstudio/?v=20261015-connection
+   Refresh using Ctrl+Shift+R if you do not see Connect service / เชื่อมต่อบริการ.
+7. Click Connect service, enter the HTTPS service URL and TEAM PASSWORD, and connect.
+   Do not paste the OpenAI key into this dialog.
+8. Upload your drawing and generate. Site-photo reconstruction uses this service too.
+
+The service URL is saved only for this browser tab session. The team password is
+kept in memory; after reloading, enter it again through Service settings.
+
+A free Render service can sleep while idle, so the first connection may take longer.
+If connection fails, wait for the service to become live and retry. Model access,
+API credits and rate limits depend on your OpenAI project. The template retains
+this project's existing model setting; change OPENAI_MODEL in Render if required.
+
+Customer images, notes and settings are processed by Render and sent to OpenAI
+when you generate. Projects remain downloads in the browser, not a shared database.
+Use approved sample files first. This is a hosted pilot with a shared team password,
+not individual company sign-in. Never put secrets in GitHub or browser source files.
+
+FILES
+render.yaml: deployment settings (contains no secrets).
+server.py and survey.py: backend.
+static/: website files and bundled readers.
+
+References:
+https://render.com/docs/deploy-fastapi
+https://render.com/docs/blueprint-spec

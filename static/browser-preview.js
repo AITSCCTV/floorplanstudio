@@ -6,7 +6,8 @@
     : 'This website is not connected to the design service. You can open and edit plans, but generation needs a connected backend.';
   window.aitsReadJson = async response => {
     if (!response.headers.get('content-type')?.includes('application/json')) throw Error(serviceMessage());
-    const result = await response.json();
+    let result;
+    try { result = await response.json(); } catch { throw Error(serviceMessage()); }
     if (!response.ok) throw Error(typeof result.detail === 'string' ? result.detail : 'The request could not be completed.');
     return result;
   };
