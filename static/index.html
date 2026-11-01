@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b1e33" />
   <title>AITS Floorplan Studio</title>
+  <script>if(location.hostname.endsWith('.github.io')||location.hostname.endsWith('.onrender.com'))document.documentElement.classList.add('login-required');</script>
+  <style>
+    html.login-required .shell{filter:blur(7px);pointer-events:none;user-select:none}
+    html.login-required{overflow:hidden}
+    .login-gate::backdrop{background:rgba(11,30,51,.6);backdrop-filter:blur(3px)}
+    .login-gate{max-height:calc(100dvh - 32px);overflow:auto}
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -106,6 +113,6 @@
   </div>
   <div id="toast" class="toast hidden"></div>
   <input id="projectInput" type="file" accept=".json,application/json" hidden />
-  <script src="/static/browser-preview.js?v=20261015-room-report" defer></script><script src="/static/service-connection.js?v=20261101-login-state" defer></script><script src="/static/generation-progress.js?v=20261015-room-report" defer></script><script src="/static/app.js?v=20261015-room-report" defer></script><script src="/static/drawing-pack.js?v=20261015-room-report" defer></script><script src="/static/workflow.js?v=20261015-room-report" defer></script><script src="/static/journey.js?v=20261015-room-report" defer></script><script src="/static/dimensions.js?v=20261015-room-report" defer></script><script src="/static/site-photos.js?v=20261015-room-report" defer></script><script src="/static/i18n.js?v=20261015-room-report" defer></script>
+  <script src="/static/browser-preview.js?v=20261015-room-report" defer></script><script src="/static/service-connection.js?v=20261101-login-gate" defer></script><script src="/static/generation-progress.js?v=20261015-room-report" defer></script><script src="/static/app.js?v=20261015-room-report" defer></script><script src="/static/drawing-pack.js?v=20261015-room-report" defer></script><script src="/static/workflow.js?v=20261015-room-report" defer></script><script src="/static/journey.js?v=20261015-room-report" defer></script><script src="/static/dimensions.js?v=20261015-room-report" defer></script><script src="/static/site-photos.js?v=20261015-room-report" defer></script><script src="/static/i18n.js?v=20261015-room-report" defer></script>
 </body>
 </html>
