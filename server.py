@@ -82,7 +82,7 @@ def design_reasoning_effort() -> str:
     # Interactive web requests need a practical latency budget. Local configuration is retained.
     if os.getenv("AITS_HOSTED", "").lower() == "true":
         return os.getenv("OPENAI_INTERACTIVE_REASONING_EFFORT", "high").strip()
-    return os.getenv("OPENAI_REASONING_EFFORT", "max").strip()
+    return os.getenv("OPENAI_REASONING_EFFORT", "high").strip()
 
 
 def ai_data_flow_approved() -> bool:
@@ -171,7 +171,7 @@ def status() -> dict[str, Any]:
         "aiPolicyApproved": approved,
         "aiReady": ai_configured and approved,
         "provider": "OpenAI Responses API" if ai_configured and approved else "Local preview mode",
-        "model": os.getenv("OPENAI_MODEL", "gpt-6-astra"),
+        "model": os.getenv("OPENAI_MODEL", "gpt-6.1-sol"),
     }
 
 
@@ -328,7 +328,7 @@ def openai_design(req: AnalyzeRequest) -> dict[str, Any]:
         raise HTTPException(status_code=503, detail="Visual AI analysis is not enabled. Add OPENAI_API_KEY to the local .env file and restart the app. Your plan is unchanged.")
     if not ai_data_flow_approved():
         raise HTTPException(status_code=503, detail="AI analysis is disabled until AITS explicitly approves sending plan images and design context to the configured provider. Your plan is unchanged.")
-    model = os.getenv("OPENAI_MODEL", "gpt-6-astra").strip()
+    model = os.getenv("OPENAI_MODEL", "gpt-6.1-sol").strip()
     reasoning_effort = design_reasoning_effort()
     prompt = (
         "Analyze this architectural floor plan for a preliminary AITS security and Wi-Fi design. "

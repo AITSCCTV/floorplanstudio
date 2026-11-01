@@ -97,7 +97,7 @@ def site_survey(req: SurveyRequest):
         raise HTTPException(503, 'The design service is not enabled. Your current plan is unchanged.')
     if sum(len(p.imageDataUrl) for p in req.photos) > 18_000_000:
         raise HTTPException(413, 'The photo batch is too large. Use fewer or smaller images.')
-    model = os.getenv('OPENAI_MODEL', 'gpt-6-astra')
+    model = os.getenv('OPENAI_MODEL', 'gpt-6.1-sol')
     effort = design_reasoning_effort()
     key = hashlib.sha256(json.dumps([VERSION, model, effort, req.model_dump()], sort_keys=True).encode()).hexdigest()
     with DESIGN_LOCK:

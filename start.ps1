@@ -12,8 +12,8 @@ if (-not (Test-Path $venvPython)) {
 if (-not (Test-Path (Join-Path $appDir '.env'))) {
     @'
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-6-astra
-OPENAI_REASONING_EFFORT=max
+OPENAI_MODEL=gpt-6.1-sol
+OPENAI_REASONING_EFFORT=high
 AITS_AI_PLAN_DATA_APPROVED=false
 '@ | Set-Content -LiteralPath (Join-Path $appDir '.env') -Encoding utf8
     Write-Host 'AI is in preview mode. Add your OpenAI API key to floorplan-studio\.env to enable plan analysis.' -ForegroundColor Yellow
