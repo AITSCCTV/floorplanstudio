@@ -2,19 +2,33 @@
   const hostedPage = location.hostname.endsWith('.github.io');
   let backend = hostedPage ? sessionStorage.getItem('aitsBackendUrl') || '' : '';
   let password = '';
+  let connectionState = 'disconnected';
+  let updateLoginLabel = () => {};
+  const setConnectionState = state => { connectionState = state; updateLoginLabel(); };
   const th = () => window.aitsLanguage === 'th' || document.documentElement.lang === 'th';
   const missing = () => th() ? 'กรุณาเชื่อมต่อบริการสร้างผังก่อน โดยใช้ปุ่มเข้าสู่ระบบเพื่อใช้งานด้านบน' : 'Connect the design service using the Login to use button above.';
   window.aitsFetch = (path, options = {}) => {
     if (hostedPage && !backend) return Promise.reject(Error(missing()));
     const headers = new Headers(options.headers);
     if (password) headers.set('Authorization', 'Bearer ' + password);
-    return fetch(backend + path, {...options, headers});
+    return fetch(backend + path, {...options, headers}).then(response => {
+      if (response.status === 401) { password = ''; setConnectionState('disconnected'); }
+      return response;
+    });
   };
   document.addEventListener('DOMContentLoaded', () => {
     if (!hostedPage) return;
     const button = document.createElement('button');
     button.className = 'btn btn-outline'; button.type = 'button';
-    const label = () => button.textContent = th() ? 'เข้าสู่ระบบเพื่อใช้งาน' : 'Login to use';
+    const label = () => {
+      const labels = {disconnected: ['Login to use', 'เข้าสู่ระบบเพื่อใช้งาน'], connecting: ['Logging in…', 'กำลังเข้าสู่ระบบ…'], connected: ['Logged in', 'เข้าสู่ระบบแล้ว']};
+      button.textContent = labels[connectionState][th() ? 1 : 0];
+      button.disabled = connectionState === 'connecting';
+      button.dataset.connectionState = connectionState;
+      button.title = connectionState === 'connected' ? (th() ? 'จัดการการเชื่อมต่อ' : 'Manage connection') : '';
+    };
+    button.setAttribute('aria-live', 'polite');
+    updateLoginLabel = label;
     label();
     document.querySelector('.top-actions').prepend(button);
     new MutationObserver(label).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
@@ -27,18 +41,18 @@
       const form=dialog.querySelector('form');form.elements.url.value=backend;
       form.elements.cancel.onclick=()=>dialog.close();
       form.onsubmit=async event=>{
-        event.preventDefault();const submit=form.querySelector('[type=submit]'),status=form.querySelector('[role=status]');
+        event.preventDefault();if(connectionState==='connecting') return;const submit=form.querySelector('[type=submit]'),status=form.querySelector('[role=status]');
         try {
           const url=new URL(form.elements.url.value.trim());
           if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||url.pathname!=='/') throw Error(thai?'ใช้ HTTPS URL หลักของบริการ':'Use the HTTPS root URL of your service.');
           const secret=form.elements.password.value;
           if(secret.startsWith('sk-')) throw Error(thai?'ช่องนี้ใช้รหัสผ่านทีม ไม่ใช่ OpenAI API key':'Use the team password here, not an OpenAI API key.');
-          submit.disabled=true;status.textContent=thai?'กำลังเชื่อมต่อ…':'Connecting…';
-          const response=await fetch(url.origin+'/api/connection',{headers:{Authorization:'Bearer '+secret}});
+          submit.disabled=true;setConnectionState('connecting');submit.textContent=thai?'กำลังเข้าสู่ระบบ…':'Logging in…';status.textContent=submit.textContent;
+          const response=await fetch(url.origin+'/api/connection',{headers:{Authorization:'Bearer '+secret},signal:AbortSignal.timeout(90000)});
           const info=await window.aitsReadJson(response);
           if(!info.aiReady) throw Error(thai?'บริการยังไม่ได้ตั้งค่า API key หรือการอนุมัติ':'The service still needs its API key or data approval setting.');
-          backend=url.origin;password=secret;sessionStorage.setItem('aitsBackendUrl',backend);label();dialog.close();refreshStatus();
-        } catch(error){status.textContent=error.message;} finally{submit.disabled=false;}
+          backend=url.origin;password=secret;sessionStorage.setItem('aitsBackendUrl',backend);setConnectionState('connected');dialog.close();refreshStatus();
+        } catch(error){setConnectionState('disconnected');status.textContent=error.name==='TimeoutError' ? (thai?'เข้าสู่ระบบนานเกินไป กรุณาลองอีกครั้ง':'Login timed out. Please try again.') : error.message;} finally{submit.disabled=false;submit.textContent=thai?'เชื่อมต่อ':'Connect';}
       };
       dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();
     };
